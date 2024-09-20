@@ -8,7 +8,7 @@ LABEL createdby="Vikas"
 WORKDIR /app
 
 # Copying package files into app directory
-COPY package*.json .
+COPY package*.json ./
 
 # Installing packages
 RUN npm i
