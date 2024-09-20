@@ -5,7 +5,7 @@ pipeline{
 
     environment{
         DOCKER_CREDS = 'DOCKER_CREDS'
-        DOCKER_IMAGE_NAME = 'snake-game'
+        DOCKER_IMAGE_NAME = 'vikasprince/snake-game'
     }
 
     stages{
