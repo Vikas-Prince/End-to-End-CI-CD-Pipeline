@@ -1,0 +1,61 @@
+Pipeline{
+    agent{
+        label: "slave"
+    }
+
+    environment{
+        DOCKER_IMAGE_NAME = 'snake-game'
+    }
+
+    stages{
+
+        stage ("Cloning the repo"){
+           steps{
+             script{
+                sh "yum install git -y || echo 'Git already Installed' "
+                sh "git clone https://github.com/Vikas-Prince/End-to-End-CI-CD-Pipeline.git"
+             }
+           }
+        }
+
+        stage ("Downloading pakcages and Verifying Test Cases"){
+            steps{
+                script{
+                    try{
+                        dir('End-to-End-CI-CD-Pipeline'){
+                            sh "npm install"
+                            sh "npm test"
+                            echo "Successfully passed all test cases"
+                        }
+                    }catch(error){
+                            echo "test cases are failed"
+                        }
+                    }
+                }
+            }
+
+        stage("Build Docker image and push to docker hub"){
+            steps{
+                script{
+                    sh "yum install docker -y || echo 'Docker already installed'"
+                    sh "systemctl start docker || echo 'Docker engine already installing' "
+                    dir('End-to-End-CI-CD-Pipeline'){
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:lts ."
+                    }
+
+                    // login to docker hub
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDS, passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh "echo '${DOCKER_PASS}' | docker login -u '${DOCKER_USER}' --password-stdin"
+                        sh "docker push ${DOCKER_IMAGE_NAME}:lts"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always{
+            sh 'docker logout'
+        }
+    }
+}
