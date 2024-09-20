@@ -1,4 +1,4 @@
-Pipeline{
+pipeline{
     agent{
         label: "slave"
     }
@@ -13,7 +13,7 @@ Pipeline{
            steps{
              script{
                 sh "yum install git -y || echo 'Git already Installed' "
-                sh "git clone https://github.com/Vikas-Prince/End-to-End-CI-CD-Pipeline.git"
+                // sh "git clone https://github.com/Vikas-Prince/End-to-End-CI-CD-Pipeline.git"
              }
            }
         }
