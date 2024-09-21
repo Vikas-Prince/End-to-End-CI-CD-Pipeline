@@ -1,0 +1,27 @@
+- hosts: k8s master
+  become: true
+  tasks:
+    - name: "Copy k8s Deployment file to target Node"
+      copy:
+        src: ../k8s/deployment.yaml
+        dest: deployment.yaml
+
+    - name: "Copy Socket shell file to target Node"
+      copy:
+        src: ../k8s/socket.sh
+        dest: socket.sh
+
+    - name: "Verifying if Deployment is exists or not"
+      command: "kubectl get deployment snake-deployment -n mySpace"
+      ignore_errors: true
+      register: dep-result
+
+    - name: "Creating Deployment or rollout"
+      command: "kubectl apply -f deployment.yaml"
+      when: dep-result.rc!= 0
+      ignore_errors: true
+
+    - name: "Rollout Deployment"
+      command: "kubectl rollout restart deployment snake-deployment"
+      when: dep-result.rc == 0
+      ignore_errors: true
