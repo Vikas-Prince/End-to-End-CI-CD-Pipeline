@@ -4,12 +4,14 @@
   "description": "Snake Game using simple JavaScript",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "start": "node index.js",
     "test": "mocha"
   },
   "author": "Vikas-prince",
   "license": "ISC",
   "dependencies": {
+    "eslint": "^9.11.0",
     "express": "^4.21.0"
   },
   "devDependencies": {
