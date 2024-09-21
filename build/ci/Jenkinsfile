@@ -10,15 +10,6 @@ pipeline{
 
     stages{
 
-        stage ("Cloning the repo"){
-           steps{
-             script{
-                sh "yum install git -y || echo 'Git already Installed' "
-                // sh "git clone https://github.com/Vikas-Prince/End-to-End-CI-CD-Pipeline.git"
-             }
-           }
-        }
-
         stage ("Downloading pakcages and Verifying Test Cases"){
             steps{
                 script{
@@ -33,6 +24,15 @@ pipeline{
                     }
                 }
             }
+
+        stage ("Checking Code Quality"){
+            steps{
+                script{
+                    sh ""
+                    sh "npm run lint"
+                }
+            }
+        }
 
         stage("Build Docker image and push to docker hub"){
             steps{
