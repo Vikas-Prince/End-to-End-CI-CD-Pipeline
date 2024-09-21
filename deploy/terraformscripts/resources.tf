@@ -48,12 +48,48 @@ resource "aws_route_table_association" "route-table-ass" {
 }
 
 
+#Creating a New Security rule
+resource "aws_security_group" "terraSecuritygp" {
+  name = "newSecurityGroup"
+  description = "Creating New Security Group for this VPC"
+  vpc_id = aws_vpc.myVpc.id
+
+  dynamic ingress {
+    for_each = var.allowedPort
+    content {
+      from_port   = ingress.value
+      to_port = ingress.value
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  ingress {
+    from_port = 30000
+    to_port = 32767
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags ={
+    Name = "MySecurityGroup"
+  }
+}
+
+
 # Launching an EC2 Instance
 resource "aws_instance" "ec2"{
     ami = data.aws_ami.latest-ami
     instance_type = var.instance_type
     subnet_id = aws_subnet.vpcSubnet.id
-    vpc_security_group_ids = [data.aws_Security_group.security_group.id]
+    vpc_security_group_ids = [data.aws_Security_group.terraSecuritygp.id]
     key_name = data.aws_key_pair.my_key
     count = 1
 

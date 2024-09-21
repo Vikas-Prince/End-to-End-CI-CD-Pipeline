@@ -7,13 +7,6 @@ data "aws_ami" "latest-ami"{
     }
 }
 
-data "aws_Security_group" "security_group" {
-    filter {
-        name = "default"
-        value = ["sg-044899a8cf48aee4f"]
-    }
-}
-
 data "aws_key_pair" "my_key" {
     key_name = "myFirstServer"
 }
