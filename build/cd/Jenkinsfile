@@ -1,0 +1,18 @@
+pipeline{
+    agent{
+        label: "slave"
+    }
+
+    stages{
+        
+        stage("Configuring Ansible"){
+            steps{
+                script{
+                    echo "CI pipeline was Successfull now we are running CD pipeline via webhooks"
+                    // Install Ansible on the slave node
+                    sh "yum install ansible -y || echo 'successfully installed Ansible' "
+                }
+            }
+        }
+    }
+}
