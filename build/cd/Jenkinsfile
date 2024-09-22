@@ -33,7 +33,7 @@ pipeline{
             steps {
                 script {
                     sh "terraform -chdir=./deploy/terraformscripts init"  
-                    withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH'  keyFileVariable: 'SSH_KEY_PATH')]) {
                     sh "terraform -chdir=./deploy/terraformscripts plan -var 'key_path=${SSH_KEY_PATH}'" 
                     def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=${SSH_KEY_PATH}' --auto-approve", returnStatus: true)
                         if (applyStatus != 0) {
