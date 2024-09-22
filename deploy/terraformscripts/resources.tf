@@ -89,9 +89,9 @@ resource "aws_instance" "ec2"{
     ami = data.aws_ami.latest-ami
     instance_type = var.instance_type
     subnet_id = aws_subnet.vpcSubnet.id
-    vpc_security_group_ids = [aws_Security_group.terraSecuritygp.id]
+    vpc_security_group_ids = [aws_security_group.terraSecuritygp.id]
     key_name = data.aws_key_pair.my_key
-    count = 1
+    count = 2
 
     tags = {
         Name = "K8s Cluster"
