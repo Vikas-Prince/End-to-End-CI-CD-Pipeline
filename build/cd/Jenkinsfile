@@ -29,16 +29,25 @@ pipeline{
             }
         }
 
-        stage("Creating Infrastructure for PROD Envirnoment"){
-            steps{
-                script{
-                    sh "terraform -chdir=./deploy/terraformscripts init"
-                    withCredentials([sshUserPrivateKey(credentialsId: 'key-path', keyFileVariable: 'SSH_KEY_PATH')]){
-                        sh "terraform -chdir= ./deploy/terraformscripts apply -var 'key-path=${SSH_KEY_PATH}' --auto-approve"
+        stage("Creating Infrastructure for PROD Environment") {
+            steps {
+                script {
+=                   sh "terraform -chdir=./deploy/terraformscripts init"
+            
+                     // Apply Terraform configuration with credentials
+                     withCredentials([sshUserPrivateKey(credentialsId: 'key-path', keyFileVariable: 'SSH_KEY_PATH')]) {
+                    def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key-path=${SSH_KEY_PATH}' --auto-approve", returnStatus: true)
+                        if (applyStatus != 0) {
+                            error("Terraform apply failed.")
+                        }
                     }
-                    sh "sleep 30"
+            
+                    // Sleep to allow infrastructure provisioning time
+                    sleep 30
+            
+                    // Copy the inventory file
                     sh "cp ./deploy/terraformscripts/inventory ./deploy/playbooks/inventory"
-                    echo "Succesfully created Infra"
+                    echo "Successfully created infrastructure."
                 }
             }
         }
