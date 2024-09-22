@@ -57,8 +57,8 @@ pipeline{
             }
             steps{
                 dir("${ANSIBLE}"){
-                    sh "ansible-playbook k8s_master.yaml"
-                    sh "ansible-playbook k8s_common.yaml"
+                    sh "ansible-playbook k8scommon.yaml"
+                    sh "ansible-playbook k8smaster.yaml"
                     echo "Successfully Configured K8s Cluster"
                 }
             }
