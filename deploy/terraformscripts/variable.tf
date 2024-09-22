@@ -3,6 +3,12 @@ variable "instance_type"{
     default = "t2.medium"
 }
 
+variable "key_path" {
+  type = string
+  description = "Path to the SSH private key"
+}
+
+
 variable "allowedPort"{
     type = list 
     default     = [
