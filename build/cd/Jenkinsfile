@@ -35,7 +35,7 @@ pipeline{
                     sh "terraform -chdir=./deploy/terraformscripts init"
                     sh "terraform -chdir=./deploy/terraformscripts plan"
                      // Apply Terraform configuration with credentials
-                    withCredentials([sshUserPrivateKey(credentialsId: 'key_path', keyFileVariable: 'SSH_KEY_PATH')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH')]) {
                     def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=${SSH_KEY_PATH}' --auto-approve", returnStatus: true)
                         if (applyStatus != 0) {
                             error("Terraform apply failed.")
