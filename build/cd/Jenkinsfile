@@ -32,7 +32,7 @@ pipeline{
         stage("Creating Infrastructure for PROD Environment") {
             steps {
                 script {
-=                   sh "terraform -chdir=./deploy/terraformscripts init"
+                    sh "terraform -chdir=./deploy/terraformscripts init"
             
                      // Apply Terraform configuration with credentials
                      withCredentials([sshUserPrivateKey(credentialsId: 'key-path', keyFileVariable: 'SSH_KEY_PATH')]) {
