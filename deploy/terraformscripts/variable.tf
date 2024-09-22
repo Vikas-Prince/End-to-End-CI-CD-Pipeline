@@ -1,5 +1,5 @@
 variable "instance_type"{
-    type= "String"
+    type= "string"
     default = "t2.medium"
 }
 
