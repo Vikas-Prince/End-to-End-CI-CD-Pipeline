@@ -48,7 +48,7 @@ pipeline{
                 ANSIBLE = '../../deploy/playbooks'
             }
             steps{
-                dir(${ANSIBLE}){
+                dir("${ANSIBLE}"){
                     sh "ansible-playbook k8s_master.yaml"
                     sh "ansible-playbook k8s_common.yaml"
                     echo "Successfully Configured K8s Cluster"
@@ -61,7 +61,7 @@ pipeline{
                 ANSIBLE = '../../deploy/playbooks'
             }
             steps{
-                if(${ANSIBLE}){
+                if("${ANSIBLE}"){
                     sh "ansible-playbook deployment_playbook.yaml"
                     echo "Successfully Deployed "
                 }
