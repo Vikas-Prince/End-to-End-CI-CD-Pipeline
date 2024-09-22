@@ -101,20 +101,22 @@ resource "aws_instance" "ec2"{
 
 # Creating Dynamic Inventory File for Ansible
 # Creating Dynamic Inventory File for Ansible
-resource "null_resource" "configureAnsibleInventory" {
+resource "null_resource" "ansibleInventory" {
   triggers = {
-    mytrigger = timestamp()
+    myTriggers = timestamp()
   }
+
   provisioner "local-exec" {
     command = <<-EOT
-      echo "[k8s-master]" > inventory
-      echo "${aws_instance.ec2.0.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=${key-path}" >> inventory
-      echo "[k8s-workers]" >> inventory
-      for ip in ${join(" ", aws_instance.ec2[*].public_ip)}; do
-        if [ "$ip" != "${aws_instance.ec2.0.public_ip}" ]; then
-          echo "$ip ansible_user=ec2-user ansible_ssh_private_key_file=${key-path}" >> inventory
-        fi
-      done
+      echo "[k8s Master]" > inventory
+      echo "${aws_instance.ec2[0].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=${key_path}" >> inventory
+      echo "[k8s slave]" >> inventory
+      # If you don't have `web` instances, remove this block
+      # for ip in ${join(" ", aws_instance.ec2[*].public_ip)}; do
+      #   if [ "$ip" != "${aws_instance.ec2[0].public_ip}" ]; then
+      #     echo "$ip ansible_user=ec2-user ansible_ssh_private_key_file=${key_path}" >> inventory
+      #   fi
+      # done
     EOT
   }
 }
