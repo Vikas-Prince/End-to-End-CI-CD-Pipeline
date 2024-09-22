@@ -56,14 +56,14 @@ pipeline{
             }
         }
 
-        stage("Deploying Application into prod"){
-            environment{
+        stage("Deploying Application into prod") {
+            environment {
                 ANSIBLE = '../../deploy/playbooks'
             }
-            steps{
-                if("${ANSIBLE}"){
+            steps {
+                dir("${ANSIBLE}") { // Ensure directory context
                     sh "ansible-playbook deployment_playbook.yaml"
-                    echo "Successfully Deployed "
+                    echo "Successfully deployed"
                 }
             }
         }
