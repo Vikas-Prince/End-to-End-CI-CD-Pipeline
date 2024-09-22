@@ -8,5 +8,5 @@ data "aws_ami" "latest-ami"{
 }
 
 data "aws_key_pair" "my_key" {
-    key_name = "myFirstServer"
+    key_name = "Ansible"
 }
