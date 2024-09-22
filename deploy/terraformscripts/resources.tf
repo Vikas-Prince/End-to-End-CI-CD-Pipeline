@@ -114,7 +114,7 @@ resource "null_resource" "ansibleInventory" {
       # If you don't have `web` instances, remove this block
       # for ip in ${join(" ", aws_instance.ec2[*].public_ip)}; do
       #   if [ "$ip" != "${aws_instance.ec2[0].public_ip}" ]; then
-      #     echo "$ip ansible_user=ec2-user ansible_ssh_private_key_file=${key_path}" >> inventory
+      #     echo "$ip ansible_user=ec2-user ansible_ssh_private_key_file=${var.key_path}" >> inventory
       #   fi
       # done
     EOT
