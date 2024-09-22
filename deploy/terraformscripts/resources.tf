@@ -86,7 +86,7 @@ resource "aws_security_group" "terraSecuritygp" {
 
 # Launching an EC2 Instance
 resource "aws_instance" "ec2"{
-    ami = data.aws_ami.latest-ami
+    ami = data.aws_ami.latest-ami.id
     instance_type = var.instance_type
     subnet_id = aws_subnet.vpcSubnet.id
     vpc_security_group_ids = [aws_security_group.terraSecuritygp.id]
