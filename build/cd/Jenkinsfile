@@ -53,7 +53,7 @@ pipeline{
 
         stage("Configure K8s cluster via Ansible on Infrastructure"){
             environment{
-                ANSIBLE = '../../deploy/playbooks/'
+                ANSIBLE = './deploy/playbooks'
             }
             steps{
                 dir("${ANSIBLE}"){
@@ -66,10 +66,10 @@ pipeline{
 
         stage("Deploying Application into prod") {
             environment {
-                ANSIBLE = '../../deploy/playbooks/'
+                ANSIBLE = './deploy/playbooks'
             }
             steps {
-                dir("${ANSIBLE}") { // Ensure directory context
+                dir("${ANSIBLE}") { 
                     sh "ansible-playbook deployment_playbook.yaml"
                     echo "Successfully deployed"
                 }
