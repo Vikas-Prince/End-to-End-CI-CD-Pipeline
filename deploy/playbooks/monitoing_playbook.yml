@@ -1,0 +1,31 @@
+- hosts: master
+  become: true
+  tasks:
+    - name: "Copying deployment files"
+      copy:
+        src: "{{item}}"
+        dest: "/{{item | basename}}"
+        loop:
+          - "../k8s/prometheus_deployment.yml"
+          - "../k8s/grafana_deployment.yml"
+
+    - name: "Verifying Deployment files"
+      command: "kubectl get deployment -n monitoring"
+      ignore_errors: true
+      register: "monitor-dep"
+
+    - name: "Creating or Rollout "
+      command: "kubectl apply -f {{item}}"
+      when: monitor-dep.rc!=0
+      ignore_errors: true
+      loop:
+        - ./prometheus_deployment.yml
+        - ./grafana_deployment.yml
+
+    - name: "Rollout Deployment"
+      command: "kubectl rollout restart {{item}}"
+      when: monitor-dep.rc==0
+      ignore_errors: true
+      loop:
+        - prometheus-deploy
+        - grafana-deploy

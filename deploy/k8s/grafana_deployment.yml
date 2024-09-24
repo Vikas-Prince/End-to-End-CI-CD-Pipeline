@@ -25,12 +25,12 @@ spec:
       storage: 1Gi
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   namespace: monitoring
   name: grafana
   labels:
-    name: grafana
+    name: grafana-deploy
 spec:
   replicas: 2
   selector:
