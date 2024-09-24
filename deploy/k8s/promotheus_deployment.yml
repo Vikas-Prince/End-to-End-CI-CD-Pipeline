@@ -83,6 +83,9 @@ spec:
           volumeMounts:
             - mountPath: /prometheus
               name: prometheus-storage
+            - mountPath: /etc/prometheus/
+              name: prometheus-config
+              subPath: prometheus.yml
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus"
@@ -91,6 +94,9 @@ spec:
         - name: prometheus-storage
           persistentVolumeClaim:
             claimName: promo-pvc
+        - name: prometheus-config
+          configMap:
+            name: promo-config
 
 ---
 apiVersion: v1
