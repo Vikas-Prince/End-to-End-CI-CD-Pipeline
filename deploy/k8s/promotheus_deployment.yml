@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promo-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_intervals: 15s
+      evaluation_intervals: 15s
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+                - alertmanagers: 9093
+
+    scrap-configs:
+      - job_name: "kubernetes sd configs"
+        kubernetes_sd_configs:
+          - role: node
+
+      - job_name: "kubernetes pod configs"
+        kubernetes_sd_configs:
+          - role: pod
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostpath:
+    path: /mnt/data/prometheus
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: promo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promo-deploy
+  labels:
+    app: promo-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: promo-pod
+  template:
+    metadata:
+      labels:
+        app: promo-pod
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.30.0
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - mountPath: /prometheus
+              name: prometheus-storage
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+
+      volumes:
+        - name: prometheus-storage
+          persistentVolumeClaim:
+            claimName: promo-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+spec:
+  type: nodeport
+  selector:
+    app: promo-pod
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+      Nodeport: 30003
