@@ -64,6 +64,19 @@ pipeline{
             }
         }
 
+        stage("Configuring monitoring setup (Prometheus and Grafana)"){
+            environment{
+                ANSIBLE = './deploy/playbooks/'
+            }
+            steps{
+                dir("${ANSIBLE}"){
+                    sh "ansible-playbook prometheus_deployment.yml"
+                    sh "ansible-playbook grafana_deployment.yml"
+                    echo "Successfully Configured prometheus and grafana"
+                }
+            }
+        }
+
         stage("Deploying Application into prod") {
             environment {
                 ANSIBLE = './deploy/playbooks'
