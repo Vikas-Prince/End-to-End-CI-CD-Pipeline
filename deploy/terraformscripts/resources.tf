@@ -12,6 +12,7 @@ resource "aws_vpc" "myVpc" {
 resource "aws_subnet" "vpcSubnet" {
     vpc_id = aws_vpc.myVpc.id
     cidr_block = "10.0.1.0/24"
+    availability_zone = "ap-south-1a"
     map_public_ip_on_launch = true
     tags = {
         Name = "vpcSubnet2"
@@ -83,16 +84,15 @@ resource "aws_security_group" "terraSecuritygp" {
   }
 }
 
-
 # Launching an EC2 Instance
 resource "aws_instance" "ec2"{
+    depends_on = [aws_security_group.terraSecuritygp ]
     ami = data.aws_ami.latest-ami.id
     instance_type = var.instance_type
     subnet_id = aws_subnet.vpcSubnet.id
     vpc_security_group_ids = [aws_security_group.terraSecuritygp.id]
     key_name = data.aws_key_pair.my_key.key_name
     count = 2
-
     tags = {
         Name = "K8s Cluster"
     }
