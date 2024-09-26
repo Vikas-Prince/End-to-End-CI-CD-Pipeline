@@ -8,6 +8,11 @@
         loop:
           - "../k8s/prometheus_deployment.yml"
           - "../k8s/grafana_deployment.yml"
+          
+    - name: "Creating prometheus dir under etc"
+      file:
+        path: "/etc"
+        state: directory
 
     - name: "Verifying Deployment files"
       command: "kubectl get deployment -n monitoring"
