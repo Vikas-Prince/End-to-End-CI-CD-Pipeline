@@ -70,8 +70,7 @@ pipeline{
             }
             steps{
                 dir("${ANSIBLE}"){
-                    sh "ansible-playbook prometheus_deployment.yml"
-                    sh "ansible-playbook grafana_deployment.yml"
+                    sh "monitoring_playbook.yml"
                     echo "Successfully Configured prometheus and grafana"
                 }
             }
