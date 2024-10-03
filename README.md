@@ -1,5 +1,3 @@
-<h1> End to End Pipeline for JS app </h1>
-
 # End-to-End Deployment Pipeline for JavaScript Applications
 
 ## Overview
@@ -40,5 +38,6 @@ This project establishes a comprehensive end-to-end pipeline for deploying JavaS
 
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
-   cd <project-directory>
+   git clone https://github.com/Vikas-Prince/End-to-End-CI-CD-Pipeline.git
+   cd End-to-End-CI-CD-Pipeline
+   ```
