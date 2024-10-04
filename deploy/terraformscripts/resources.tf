@@ -12,7 +12,7 @@ resource "aws_vpc" "myVpc" {
 resource "aws_subnet" "vpcSubnet" {
     vpc_id = aws_vpc.myVpc.id
     cidr_block = "10.0.1.0/24"
-    availability_zone = "ap-south-1a"
+    availability_zone = "ap-south-1b"
     map_public_ip_on_launch = true
     tags = {
         Name = "vpcSubnet2"
@@ -33,7 +33,7 @@ resource "aws_route_table" "vpcRouteTable" {
     vpc_id = aws_vpc.myVpc.id
 
     route {
-        cidr_block= "0.0.0.0/24"
+        cidr_block= "0.0.0.0/0"
         gateway_id = aws_internet_gateway.vpcGateway.id
     }
 
@@ -72,6 +72,12 @@ resource "aws_security_group" "terraSecuritygp" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   egress {
     from_port = 0
     to_port = 0
@@ -90,6 +96,7 @@ resource "aws_instance" "ec2"{
     ami = data.aws_ami.latest-ami.id
     instance_type = var.instance_type
     subnet_id = aws_subnet.vpcSubnet.id
+    availability_zone = aws_subnet.vpcSubnet.availability_zone
     vpc_security_group_ids = [aws_security_group.terraSecuritygp.id]
     key_name = data.aws_key_pair.my_key.key_name
     count = 2
@@ -99,7 +106,6 @@ resource "aws_instance" "ec2"{
 
 }
 
-# Creating Dynamic Inventory File for Ansible
 # Creating Dynamic Inventory File for Ansible
 resource "null_resource" "ansibleInventory" {
   triggers = {

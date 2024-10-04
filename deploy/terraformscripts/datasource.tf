@@ -4,7 +4,17 @@ data "aws_ami" "latest-ami"{
     owners      = ["amazon"]
     filter {
         name = "name"
-        values = ["RHEL-9.4.0_HVM-2024*-x86_64-82-Hourly2-GP3"]
+        values = ["al2023-ami-2023.5.20241001.1-kernel-6.1-x86_64"]
+    }
+
+     filter {
+        name   = "root-device-type"
+        values = ["ebs"]
+    }
+
+    filter {
+        name   = "virtualization-type"
+        values = ["hvm"]
     }
 }
 
