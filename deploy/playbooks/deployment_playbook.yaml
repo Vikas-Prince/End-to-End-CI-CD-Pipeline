@@ -1,4 +1,4 @@
-- hosts: k8s master
+- hosts: k8s-master
   become: true
   tasks:
     - name: "Copy k8s Deployment file to target Node"

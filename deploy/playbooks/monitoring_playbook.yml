@@ -1,4 +1,4 @@
-- hosts: master
+- hosts: k8s-master
   become: true
   tasks:
     - name: "Copying deployment files"
@@ -8,7 +8,7 @@
         loop:
           - "../k8s/prometheus_deployment.yml"
           - "../k8s/grafana_deployment.yml"
-          
+
     - name: "Creating prometheus dir under etc"
       file:
         path: "/etc"
