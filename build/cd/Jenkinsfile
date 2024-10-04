@@ -40,15 +40,15 @@ pipeline{
                 // Write the SSH key to a temporary file
                 
                  sh """
-                    cat <<EOF > /tmp/id_rsa
+                    cat <<EOF > key.pem
                     ${SSH_KEY_PATH}
                     EOF
-                    chmod 600 /tmp/id_rsa  # Set appropriate permissions
+                    chmod 400 key.pem  # Set appropriate permissions
                 """
 
-                sh "terraform -chdir=./deploy/terraformscripts plan -var 'key_path=/tmp/id_rsa'"
+                sh "terraform -chdir=./deploy/terraformscripts plan -var 'key_path=key.pem'"
 
-                def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=/tmp/id_rsa' --auto-approve", returnStatus: true)
+                def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=key.pem' --auto-approve", returnStatus: true)
                     if (applyStatus != 0) {
                         error("Terraform apply failed with status: ${applyStatus}")
                     }
