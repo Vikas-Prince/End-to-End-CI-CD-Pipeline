@@ -36,7 +36,7 @@ pipeline{
                 sh "terraform -chdir=./deploy/terraformscripts init"
 
                 // Use the SSH key from Jenkins credentials
-                withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH', keyVariable: 'SSH_KEY_PATH')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH', keyFileVariable: 'SSH_KEY_PATH')]) {
                 // Write the SSH key to a temporary file
                 
                  sh """
