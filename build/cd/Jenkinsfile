@@ -32,36 +32,35 @@ pipeline{
         stage("Creating Infrastructure for PROD Environment") {
             steps {
                 script {
-                    // Initialize Terraform
-                    sh "terraform -chdir=./deploy/terraformscripts init"
-            
-                    // Use the SSH key from Jenkins credentials
-                    withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH', keyVariable: 'SSH_KEY_CONTENT')]) {
-                    // Write the SSH key to a temporary file
-                    sh """
-                        echo "${SSH_KEY_CONTENT}" > /tmp/id_rsa
-                        chmod 600 /tmp/id_rsa  # Set appropriate permissions
-                    
-                        // Plan the Terraform changes
-                        terraform -chdir=./deploy/terraformscripts plan -var 'key_path=/tmp/id_rsa'
-                    
-                        // Apply the Terraform changes
-                        def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=/tmp/id_rsa' --auto-approve", returnStatus: true)
-                            if (applyStatus != 0) {
-                            error("Terraform apply failed.")
-                        }
-                    """
+                // Initialize Terraform
+                sh "terraform -chdir=./deploy/terraformscripts init"
+
+                // Use the SSH key from Jenkins credentials
+                withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH', keyVariable: 'SSH_KEY_CONTENT')]) {
+                // Write the SSH key to a temporary file
+                sh """
+                    echo '${SSH_KEY_CONTENT}' > /tmp/id_rsa
+                    chmod 600 /tmp/id_rsa  # Set appropriate permissions
+
+                    terraform -chdir=./deploy/terraformscripts plan -var 'key_path=/tmp/id_rsa'
+
+                    def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=/tmp/id_rsa' --auto-approve", returnStatus: true)
+                    if (applyStatus != 0) {
+                        error("Terraform apply failed with status: ${applyStatus}")
                     }
-            
-                    // Sleep to allow infrastructure provisioning time
-                    sleep 30
-            
-                    // Copy the inventory file
-                    sh "cp ./deploy/terraformscripts/inventory ./deploy/playbooks/inventory"
-                    echo "Successfully created infrastructure."
+                """
+                }
+
+                // Sleep to allow infrastructure provisioning time
+                sleep 30
+
+                // Copy the inventory file
+                sh "cp ./deploy/terraformscripts/inventory ./deploy/playbooks/inventory"
+                echo "Successfully created infrastructure."
                 }
             }
         }
+
 
 
         stage("Configure K8s cluster via Ansible on Infrastructure"){
