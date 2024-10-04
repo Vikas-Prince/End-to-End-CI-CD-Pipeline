@@ -114,9 +114,9 @@ resource "null_resource" "ansibleInventory" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      echo "[k8s Master]" > inventory
+      echo "[k8s-master]" > inventory
       echo "${aws_instance.ec2[0].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=${var.key_path}" >> inventory
-      echo "[k8s slave]" >> inventory
+      echo "[k8s-slave]" >> inventory
       for ip in ${join(" ", aws_instance.ec2[*].public_ip)}; do
         if [ "$ip" != "${aws_instance.ec2[0].public_ip}" ]; then
           echo "$ip ansible_user=ec2-user ansible_ssh_private_key_file=${var.key_path}" >> inventory
