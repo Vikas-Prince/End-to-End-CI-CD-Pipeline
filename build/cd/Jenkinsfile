@@ -38,17 +38,20 @@ pipeline{
                 // Use the SSH key from Jenkins credentials
                 withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY_PATH', keyVariable: 'SSH_KEY_PATH')]) {
                 // Write the SSH key to a temporary file
-                sh """
-                    echo '${SSH_KEY_PATH}' > /tmp/id_rsa
+                
+                 sh """
+                    cat <<EOF > /tmp/id_rsa
+                    ${SSH_KEY_PATH}
+                    EOF
                     chmod 600 /tmp/id_rsa  # Set appropriate permissions
+                """
 
-                    terraform -chdir=./deploy/terraformscripts plan -var 'key_path=/tmp/id_rsa'
+                sh "terraform -chdir=./deploy/terraformscripts plan -var 'key_path=/tmp/id_rsa'"
 
-                    def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=/tmp/id_rsa' --auto-approve", returnStatus: true)
+                def applyStatus = sh(script: "terraform -chdir=./deploy/terraformscripts apply -var 'key_path=/tmp/id_rsa' --auto-approve", returnStatus: true)
                     if (applyStatus != 0) {
                         error("Terraform apply failed with status: ${applyStatus}")
                     }
-                """
                 }
 
                 // Sleep to allow infrastructure provisioning time
