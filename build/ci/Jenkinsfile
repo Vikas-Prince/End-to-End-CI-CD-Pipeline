@@ -3,57 +3,130 @@ pipeline{
         label "slave"
     }
 
+    tools{
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+
     environment{
-        DOCKER_CREDS = 'DOCKER_CREDS'
-        DOCKER_IMAGE_NAME = 'vikasprince/snake-game'
+        SONAR_HOME = tool 'sonar-scanner'
     }
 
     stages{
 
-        stage ("Downloading pakcages and Verifying Test Cases"){
+        stage("Cleaning the Workspace"){
             steps{
-                script{
-                    try{
-                        sh "npm install"
-                        sh "npm test"
-                        echo "Successfully passed all test cases"
-                        
-                    }catch(error){
-                            echo "test cases are failed"
-                        }
-                    }
-                }
+                cleanWs()
             }
+        }
 
-        stage ("Checking Code Quality"){
+        stage("Checkout SCM"){
+            steps{
+                git branch: 'main', url: 'https://github.com/Vikas-Prince/End-to-End-CI-CD-Pipeline.git'
+                echo "Code downloaded successfully"
+            }
+        }
+
+        stage("Compile the Java Code using Maven"){
+            steps{
+                sh 'mvn compile'
+                echo 'Code Compiled Successfully'
+            }
+        }
+
+        stage("Verify Unit Test Cases using Maven"){
+            steps{
+                sh 'mvn test -Dmaven.test.skip=true'
+                echo 'Unit Test cases are passed Successfully'
+            }
+        }
+
+        stage("Code Quality Check using SonarQube scanner"){
             steps{
                 script{
-                    sh ""
-                    sh "npm run lint"
+                    withSonarQubeEnv('sonarqube'){
+                        sh '''
+                            $SONAR_HOME/bin/sonar-scanner
+                            -Dsonar.projectName= BankingApp
+                            -Dsonar.projectKey= BankingApp
+                            -Dsonar.java.binaries= .
+
+                            '''
+                    } 
                 }
             }
         }
 
-        stage("Build Docker image and push to docker hub"){
+        stage("Checking Quality Gate"){
             steps{
-                script{
-                    sh "yum install docker -y || echo 'Docker already installed'"
-                    sh "systemctl start docker || echo 'Docker engine already installing' "
-                    sh "docker build -t ${DOCKER_IMAGE_NAME}:lts ."
-
-                    // login to docker hub
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDS, passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh "echo '${DOCKER_PASS}' | docker login -u '${DOCKER_USER}' --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE_NAME}:lts"
+                script {
+                    def qualityGate = waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token', timeout: 10
+                        if (qualityGate.status != 'OK') {
+                            error "Quality gate failed: ${qualityGate.status}"
                     }
+                }            
+            }
+        }
+
+        stage("Scanning File System using Trivy"){
+            steps{
+                sh 'trivy fs . --output trivy-fs-report.json'
+            }
+        }
+
+        stage("Build Artifacts using maven"){
+            steps{
+                sh 'mvn clean package'
+                echo 'successfully built Artifacts'
+            }
+        }
+
+        stage("push Artifacts to Nexus Repo"){
+            steps{
+                sh 'mvn deploy -Dmaven.test.skip=true'
+            }
+        }
+
+        stage("Build Docker Image"){
+            steps{
+                withDockerRegistry(credentialsId: 'docker-cred'){
+                    sh 'docker build -t vikasprince/banking-app:latest .'
+                }
+            }
+        }
+
+        stage("Scan Docker image using Trivy"){
+            steps{
+                sh 'trivy image . --output trivy-image-report.json'
+            }
+        }
+
+        stage("Push Docker Image to Docker Hub"){
+            steps{
+                withDockerRegistry(credentialsId: 'docker-cred'){
+                    sh 'docker push vikasprince/banking-app:latest'
                 }
             }
         }
     }
 
-    post {
+    post{
         always{
-            sh 'docker logout'
+            emailext(
+                subject: 'Banking Application Pipeline Status',
+                body: '''
+                    Hi Team,
+                    
+                    The Banking Application Pipeline has completed with status: ${currentBuild.result}, PFA.
+
+                    Kindly Check Console outputs for more details.
+
+                    Regards,
+                    Jenkins.
+                ''',
+                attachmentPattern: 'trivy*.json',
+                to: 'vikasprince30809@gmail.com'
+            )
         }
     }
 }
