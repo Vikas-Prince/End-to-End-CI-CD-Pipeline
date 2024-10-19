@@ -97,7 +97,7 @@ pipeline{
 
         stage("Scan Docker image using Trivy"){
             steps{
-                sh 'trivy image . --output trivy-image-report.json'
+                sh 'trivy image vikasprince/banking-app:latest --output trivy-image-report.json'
             }
         }
 
