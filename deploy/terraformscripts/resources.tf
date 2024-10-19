@@ -97,7 +97,7 @@ resource "aws_instance" "ec2"{
     instance_type = var.instance_type
     subnet_id = aws_subnet.vpcSubnet.id
     availability_zone = aws_subnet.vpcSubnet.availability_zone
-    vpc_security_group_ids = ["sg-044899a8cf48aee4f"]
+    vpc_security_group_ids = [aws_security_group.terraSecuritygp.id]
     key_name = data.aws_key_pair.my_key.key_name
     count = 2
     tags = {
